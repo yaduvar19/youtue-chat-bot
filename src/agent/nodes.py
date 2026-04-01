@@ -9,7 +9,7 @@ from ..guardrails.rails import guardrails_manager
 from ..tools.youtube_search import search_youtube_videos
 from ..tools.transcript import get_video_transcript
 from ..tools.channel import get_channel_info
-
+from src.db.vector_store import store_transcript_chunks
 
 SYSTEM_PROMPT = """You are a helpful YouTube assistant. You help users:
 - Search for videos on any topic
@@ -88,6 +88,8 @@ async def transcript_node(state: AgentState) -> AgentState:
             "video_url_or_id": last_message.content,
             "summarize": True
         })
+        if result.get("text"):
+             store_transcript_chunks(result["video_id"], result["text"])
         
         return {**state, "transcript": result, "error": None}
         
@@ -114,6 +116,13 @@ async def response_node(state: AgentState) -> AgentState:
     """Generate final response based on gathered data."""
     
     # Handle blocked requests
+    if state.get("rag_answer"):
+        return {
+        **state,
+        "messages": state["messages"] + [
+            AIMessage(content=state["rag_answer"])
+        ]
+    }
     if state.get("intent") == "blocked":
         return {
             **state,

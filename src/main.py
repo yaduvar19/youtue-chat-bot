@@ -6,7 +6,12 @@ load_dotenv()
 
 from .api.routes import app
 
+from fastapi import FastAPI
+from src.api.chat import router as chat_router
 
+app = FastAPI()
+
+app.include_router(chat_router)
 def main():
     uvicorn.run(
         "src.api.routes:app",
