@@ -1,0 +1,26 @@
+# src/guardrails/colang/config.yml
+models:
+  - type: main
+    engine: openai
+    model: gpt-4o-mini
+
+rails:
+  input:
+    flows:
+      - check jailbreak
+      - check harmful content
+      - check off topic
+  output:
+    flows:
+      - check hallucination
+      - check sensitive data
+
+instructions:
+  - type: general
+    content: |
+      You are a YouTube assistant chatbot. You help users:
+      - Search for YouTube videos
+      - Get video transcripts and summaries
+      - Find channel information
+      
+      Stay focused on YouTube-related queries. Politely redirect off-topic requests.
